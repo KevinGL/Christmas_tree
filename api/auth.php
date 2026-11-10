@@ -5,7 +5,6 @@ session_start();
 require_once "../db/pdo.php";
 require_once "../utils/twilio.php";
 require_once "../utils/random.php";
-require_once "../utils/safety.php";
 
 if($_SERVER["REQUEST_METHOD"] !== "POST")
 {
@@ -39,7 +38,7 @@ if(!isset($_SESSION["auth_code"]))
 
     sendMessage($phone, "Bienvenue " . $user['username'] . " ! Voici ton code d'accès : " . $code);
     $_SESSION["auth_code"] = $code;
-    $_SESSION["phoneNumber"] = hidePhoneNumber($phone);
+    $_SESSION["phoneNumber"] = $phone;
 
     header("location: ../login.php");
     die();
@@ -62,5 +61,12 @@ else
         $_SESSION["auth"] = true;
     
         header("location: ../home.php");
+        die();
+    }
+
+    else
+    {
+        $_SESSION["flash"] = ["status" => "error", "message" => "Mauvaise code entré"];
+        header("location: ../login.php");
     }
 }

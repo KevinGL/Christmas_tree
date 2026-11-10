@@ -46,6 +46,8 @@ if(isset($_SESSION["auth"]))
                     <input type="number" name="code" />
                 </div>
 
+                <a href="api/resend.php">Renvoyer un code</a>
+
                 <button type="submit">Valider</button>
             </form>
 

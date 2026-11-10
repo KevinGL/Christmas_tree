@@ -10,5 +10,6 @@ if(!isset($_SESSION["auth"]))
 
 else
 {
-    //
+    header("location: home.php");
+    die();
 }

@@ -8,7 +8,7 @@ function sendMessage(string $dest, string $content)
 {
     $sid = getEnvVar()["TWILIO_SID"];
     $token = getEnvVar()["TWILIO_TOKEN"];
-    $twilioNumber = getEnvVar()["TWILIO_NUMBER"];; // Votre numéro Twilio au format international (E.164)
+    $twilioNumber = getEnvVar()["TWILIO_NUMBER"];
 
     $client = new Client($sid, $token);
 
