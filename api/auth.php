@@ -103,7 +103,7 @@ else
         unset($_SESSION["auth_code"]);
         unset($_SESSION["phoneNumber"]);
 
-        $_SESSION["auth"] = true;
+        $_SESSION["auth"] = $user["id"];
         $_SESSION["flash"] = ["status" => "success", "message" => "Bienvenue " . $user["username"] . " !"];
     
         header("location: ../home.php");
