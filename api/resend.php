@@ -32,9 +32,10 @@ if(!$user)
 }
 
 $code = getRandomCode(6);
+$now = new DateTime();
 
 sendMessage($phone, "Bienvenue " . $user['username'] . " ! Voici ton code d'accès : " . $code);
-$_SESSION["auth_code"] = $code;
+$_SESSION["auth_code"] = ["code" => $code, "nbTry" => 0, "ts" => $now->getTimestamp()];
 $_SESSION["phoneNumber"] = $phone;
 
 header("location: ../login.php");

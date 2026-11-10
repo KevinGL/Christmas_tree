@@ -2,6 +2,25 @@
 
 session_start();
 
+//Trop de tentatives échouées
+if(isset($_SESSION["forbidden"]))
+{
+    $now = new DateTime();
+
+    //Suppression du blocage au bout d'un certain temps
+    if($now->getTimestamp() - $_SESSION["forbidden"]["ts"] > 3600)
+    {
+        unset($_SESSION["forbidden"]);
+    }
+
+    else
+    {
+        $_SESSION["flash"] = ["status" => "error", "message" => "Trop de tentatives réalisées"];
+        header("location: ../login.php");
+        die();
+    }
+}
+
 require_once "../db/pdo.php";
 require_once "../utils/twilio.php";
 require_once "../utils/random.php";
@@ -35,9 +54,12 @@ if(!isset($_SESSION["auth_code"]))
     }
 
     $code = getRandomCode(6);
+    $now = new DateTime();
 
     sendMessage($phone, "Bienvenue " . $user['username'] . " ! Voici ton code d'accès : " . $code);
-    $_SESSION["auth_code"] = $code;
+    
+    //Sauvegarde code généré, nombre de tentatives de connexion et timestamp courant
+    $_SESSION["auth_code"] = ["code" => $code, "nbTry" => 0, "ts" => $now->getTimestamp()];
     $_SESSION["phoneNumber"] = $phone;
 
     header("location: ../login.php");
@@ -53,12 +75,36 @@ else
         die();
     }
 
-    if($_POST["code"] === $_SESSION["auth_code"])
+    $now = new DateTime();
+
+    var_dump($_SESSION["auth_code"]);
+
+    //Code expiré
+    if($now->getTimestamp() - $_SESSION["auth_code"]["ts"] > 1800)
     {
         unset($_SESSION["auth_code"]);
         unset($_SESSION["phoneNumber"]);
 
+        $_SESSION["flash"] = ["status" => "error", "message" => "Code d'accès expiré"];
+
+        header("location: ../login.php");
+        die();
+    }
+
+    //Accès autorisé
+    if($_POST["code"] === $_SESSION["auth_code"]["code"])
+    {
+        $pdo = getPDO();
+
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE phone = :phone");
+        $stmt->execute(["phone" => $_SESSION["phoneNumber"]]);
+        $user = $stmt->fetch();
+
+        unset($_SESSION["auth_code"]);
+        unset($_SESSION["phoneNumber"]);
+
         $_SESSION["auth"] = true;
+        $_SESSION["flash"] = ["status" => "success", "message" => "Bienvenue " . $user["username"] . " !"];
     
         header("location: ../home.php");
         die();
@@ -67,6 +113,23 @@ else
     else
     {
         $_SESSION["flash"] = ["status" => "error", "message" => "Mauvaise code entré"];
+        $_SESSION["auth_code"]["nbTry"]++;
+
+        //Nombre maximal de tentatives dépassé
+        if($_SESSION["auth_code"]["nbTry"] > 3)
+        {
+            $now = new DateTime();
+        
+            $_SESSION["forbidden"] = ["status" => true, "ts" => $now->getTimestamp()];
+            $_SESSION["flash"] = ["status" => "error", "message" => "Trop de tentatives réalisées"];
+
+            unset($_SESSION["auth_code"]);
+            unset($_SESSION["phoneNumber"]);
+            
+            header("location: ../login.php");
+            die();
+        }
+
         header("location: ../login.php");
     }
 }
