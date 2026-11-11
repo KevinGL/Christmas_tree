@@ -77,8 +77,6 @@ else
 
     $now = new DateTime();
 
-    var_dump($_SESSION["auth_code"]);
-
     //Code expiré
     if($now->getTimestamp() - $_SESSION["auth_code"]["ts"] > 1800)
     {

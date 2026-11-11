@@ -34,8 +34,6 @@ if(!$wish)
 
 ?>
 
-<?php if($_SERVER["REQUEST_METHOD"] === "GET"): ?>
-
 <!doctype html>
 <html lang="fr" class="h-full bg-slate-50">
     <head>
@@ -58,7 +56,8 @@ if(!$wish)
                 <p class="text-sm text-slate-400">Mettez à jour votre idée cadeau pour la famille</p>
             </div>
 
-            <form method="post" class="space-y-5">
+            <form method="post" action="api/edit_wish.php" class="space-y-5">
+                <input name="id" value="<?= $_GET['id'] ?>" hidden />
                 <div class="space-y-2">
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300">Souhait</label>
                     <input
@@ -94,30 +93,3 @@ if(!$wish)
         </div>
     </body>
 </html>
-
-<?php else:
-
-$stmt = $pdo->prepare("SELECT * FROM wish_lists WHERE id = :id AND user_id = :user_id");
-$stmt->execute([
-        "id" => $_GET["id"],
-        "user_id" => $_SESSION["auth"]
-    ]);
-
-$wish = $stmt->fetch();
-
-if(!$wish)
-{
-    header("location: home.php");
-    die();
-}
-
-$stmt = $pdo->prepare("UPDATE wish_lists SET name = :name WHERE id = :id");
-$stmt->execute([
-        "name" => $_POST["name"],
-        "id" => $_GET["id"]
-    ]);
-
-$_SESSION["flash"] = ["status" => "success", "message" => "Souhait mis à jour"];
-header("location: home.php");
-
-endif ?>

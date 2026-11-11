@@ -52,8 +52,6 @@ if(!$wish)
 
 ?>
 
-<?php if($_SERVER["REQUEST_METHOD"] === "GET"): ?>
-
 <!doctype html>
 <html lang="fr" class="h-full bg-slate-50">
     <head>
@@ -76,7 +74,9 @@ if(!$wish)
                 <p class="text-sm text-slate-400">Mettez à jour l'idée cadeau pour cette personne</p>
             </div>
         
-            <form method="post" class="space-y-5">
+            <form method="post" action="api/edit_wish_supported.php" class="space-y-5">
+                <input name="id" value="<?= $_GET['id'] ?>" hidden />
+                <input name="supported_user" value="<?= $_GET['supported_user'] ?>" hidden />
                 <div class="space-y-2">
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300">
                         Cadeau / Souhait
@@ -114,28 +114,3 @@ if(!$wish)
         </div>
     </body>
 </html>
-
-<?php else:
-
-$stmt = $pdo->prepare("SELECT * FROM supported_users WHERE user_id = :user_id AND supported_by = :supported_by");
-$stmt->execute([
-    "user_id" => $_GET["supported_user"],
-    "supported_by" => $_SESSION["auth"]
-]);
-
-if(!$stmt->fetch())
-{
-    header("location: home.php");
-    die();
-}
-
-$stmt = $pdo->prepare("UPDATE wish_lists SET name = :name WHERE id = :id");
-$stmt->execute([
-        "name" => $_POST["name"],
-        "id" => $_GET["id"]
-    ]);
-
-$_SESSION["flash"] = ["status" => "success", "message" => "Souhait mis à jour"];
-header("location: home.php");
-
-endif ?>

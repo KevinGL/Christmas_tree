@@ -21,7 +21,7 @@ function sendMessage(string $dest, string $content)
             ]
         );
 
-        echo "SMS envoyé avec succès ! SID : " . $message->sid;
+        //echo "SMS envoyé avec succès ! SID : " . $message->sid;
 
     } catch (\Exception $e) {
         echo "Erreur lors de l'envoi du SMS : " . $e->getMessage();
