@@ -9,9 +9,12 @@ if(!isset($_SESSION["auth"]))
 }
 
 require_once __DIR__ . "/api/get_wish_lists.php";
+require_once __DIR__ . "/safety/encrypt.php";
 
 $wishLists = getWishLists();
 $ownList = getOwnList();
+$supportedUsers = getSupportedUsers();
+$wishsSupportedUsers = getWishsSupportedUsers();
 
 ?>
 
@@ -39,11 +42,11 @@ $ownList = getOwnList();
                 <thead>
                     <tr>
                         <th>
-                            Membre de la famille
+                            Cadeau désiré
                         </th>
 
                         <th>
-                            Liste de cadeaux souhaités
+                            Pour
                         </th>
 
                         <th>
@@ -53,22 +56,24 @@ $ownList = getOwnList();
                 </thead>
 
                 <tbody>
-                    <?php foreach($wishLists as $key => $value): ?>
+                    <?php foreach($wishLists as $w): ?>
                         <tr>
                             <td>
-                                <?= $key ?>
+                                <?= $w["wish_name"] ?>
                             </td>
 
                             <td>
-                                <ul>
-                                    <?php foreach($value as $v): ?>
-                                        <li><?= $v ?></li>
-                                    <?php endforeach ?>
-                                </ul>
+                                <?= $w["username"] ?>
                             </td>
 
                             <td>
-                                Non
+                                <?php if(decryptData($w["wish_supported"]) === "0"): ?>
+                                    Non
+                                    <a href="api/support.php?id=<?= $w['wish_id'] ?>">Prendre en charge</a>
+                                <?php else: ?>
+                                    Oui <?php if(decryptData($w["wish_supported"]) == $_SESSION["auth"]) echo "(Par vous)" ?>
+                                    <a href="api/unsupport.php?id=<?= $w['wish_id'] ?>">Ne plus prendre en charge</a>
+                                <?php endif ?>
                             </td>
                         </tr>
                     <?php endforeach ?>
@@ -78,7 +83,7 @@ $ownList = getOwnList();
             <h2>Vos propres souhaits</h2>
 
             <table>
-                <body>
+                <tbody>
                     <?php foreach($ownList as $w): ?>
                         <tr>
                             <td>
@@ -94,7 +99,7 @@ $ownList = getOwnList();
                             </td>
                         </tr>
                     <?php endforeach ?>
-                </body>
+                </tbody>
             </table>
 
             <form method="post" action="/api/add_wish.php">
@@ -103,8 +108,43 @@ $ownList = getOwnList();
                     <input name="name" type="text" required />
                 </div>
 
-                <input type="submit" />
+                <input type="submit" value="Ajouter à ma liste" />
             </form>
+
+            <h2>Cadeaux pour personnes que vous prenez en charge</h2>
+
+            <table>
+                <tbody>
+                    <?php foreach($wishsSupportedUsers as $w): ?>
+                        <tr>
+                            <td>
+                                <?= $w["name"] ?>
+                            </td>
+
+                            <td>
+                                <a href="edit_wish_supported.php?id=<?= $w['id'] ?>&supported_user=<?= $w['supported_user'] ?>">Modifier</a>
+                            </td>
+
+                            <td>
+                                <button class="delete-btn" id="<?= $w['supported_user'] ?>_<?= $w['id'] ?>">Supprimer</button>
+                            </td>
+                        </tr>
+                    <?php endforeach ?>
+                </tbody>
+            </table>
+
+            <?php if(count($supportedUsers)): ?>
+                <?php foreach($supportedUsers as $su): ?>
+                    <form method="post" action="/api/add_wish.php?user_id=<?= $su['id'] ?>">
+                        <div>
+                            <label>Cadeau pour <?= $su["username"] ?></label>
+                            <input name="name" type="text" required />
+                        </div>
+
+                        <input type="submit" value="Ajouter à sa liste" />
+                    </form>
+                <?php endforeach ?>
+            <?php endif ?>
         
         </main>
 
@@ -125,6 +165,7 @@ $ownList = getOwnList();
     const btnNo = document.getElementById("no");
     const btnYes = document.getElementById("yes");
     let idDelete = 0;
+    let userSupported = 0;
     
     deleteButtons.forEach(button =>
     {
@@ -142,6 +183,15 @@ $ownList = getOwnList();
 
     btnYes.addEventListener("click", () =>
     {
-        window.location = "/api/del_wish.php?id=" + idDelete;
+        if(!idDelete.includes("_"))
+        {
+            window.location = "/api/del_wish.php?id=" + idDelete;
+        }
+
+        else
+        {
+            [supportedUser, idDelete] = idDelete.split('_');
+            window.location = "/api/del_wish_supported.php?id=" + idDelete + "&supported_user=" + supportedUser;
+        }
     });
 </script>

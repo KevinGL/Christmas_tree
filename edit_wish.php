@@ -53,11 +53,27 @@ if(!$wish)
             </div>
 
             <button type="submit">Mettre à jour</button>
-        </form>        
+        </form>  
+        
+        <a href="../home.php">Annuler</a>
     </body>
 </html>
 
 <?php else:
+
+$stmt = $pdo->prepare("SELECT * FROM wish_lists WHERE id = :id AND user_id = :user_id");
+$stmt->execute([
+        "id" => $_GET["id"],
+        "user_id" => $_SESSION["auth"]
+    ]);
+
+$wish = $stmt->fetch();
+
+if(!$wish)
+{
+    header("location: home.php");
+    die();
+}
 
 $stmt = $pdo->prepare("UPDATE wish_lists SET name = :name WHERE id = :id");
 $stmt->execute([

@@ -10,36 +10,15 @@ if(!isset($_SESSION["auth"]))
 
 function getWishLists(): array
 {
-    $res = [];
-
     $currentId = $_SESSION["auth"];
 
     $pdo = getPDO();
 
-    $stmt = $pdo->prepare("SELECT w.name AS wish_name, w.supported as wish_supported, u.username as username FROM wish_lists w JOIN users u ON w.user_id = u.id WHERE w.user_id <> :id");
+    $stmt = $pdo->prepare("SELECT w.id as wish_id, w.name AS wish_name, w.supported as wish_supported, u.username as username FROM wish_lists w JOIN users u ON w.user_id = u.id WHERE w.user_id <> :id");
     $stmt->execute(["id" => $currentId]);
     $wishs = $stmt->fetchAll();
 
-    foreach($wishs as $w)
-    {
-        $res[$w["username"]][] = $w["wish_name"];
-    }
-
-    $stmt = $pdo->prepare("SELECT username FROM users WHERE id <> :id");
-    $stmt->execute(["id" => $currentId]);
-    $users = $stmt->fetchAll();
-
-    foreach($users as $user)
-    {
-        $username = $user["username"];
-    
-        if(!isset($res[$username]))
-        {
-            $res[$username] = [];
-        }
-    }
-
-    return $res;
+    return $wishs;
 }
 
 function getOwnList(): array
@@ -52,4 +31,41 @@ function getOwnList(): array
     $stmt->execute(["id" => $currentId]);
 
     return $stmt->fetchAll();
+}
+
+function getSupportedUsers(): array
+{
+    $currentId = $_SESSION["auth"];
+
+    $pdo = getPDO();
+
+    $stmt = $pdo->prepare("SELECT u.id, u.username FROM supported_users su JOIN users u ON su.user_id = u.id WHERE su.supported_by = :supported_by");
+    $stmt->execute(["supported_by" => $currentId]);
+
+    return $stmt->fetchAll();
+}
+
+function getWishsSupportedUsers(): array
+{
+    $usersSupported = getSupportedUsers();
+    $pdo = getPDO();
+    
+    $res = [];
+    foreach($usersSupported as $u)
+    {
+        $stmt = $pdo->prepare("SELECT id, name, supported FROM wish_lists WHERE user_id = :user_id");
+        $stmt->execute(["user_id" => $u["id"]]);
+
+        $wishs = $stmt->fetchAll();
+
+        if($wishs)
+        {
+            foreach($wishs as $w)
+            {
+                $res[] = [...$w, "supported_user" => $u["id"]];
+            }
+        }
+    }
+
+    return $res;
 }

@@ -28,7 +28,7 @@ $wish = $stmt->fetch();
 
 if(!$wish)
 {
-    header("location: home.php");
+    header("location: ../home.php");
     die();
 }
 
