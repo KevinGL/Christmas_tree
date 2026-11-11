@@ -34,8 +34,10 @@ if($_SERVER["REQUEST_METHOD"] !== "POST")
 
 if(!isset($_SESSION["auth_code"]))
 {
-    $phone = $_POST["phone"];
-    if($phone[0] === "0")
+    $phone = trim($_POST["phone"]);
+    $phone = preg_replace('/[\s.\-\(\)]/', '', $phone);
+
+    if(str_starts_with($phone, "0"))
     {
         $phone = "+33" . substr($phone, 1);
     }
