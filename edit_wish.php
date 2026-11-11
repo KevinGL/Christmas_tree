@@ -41,21 +41,57 @@ if(!$wish)
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Modifiez votre souhait</title>
+        <title>Christmas Tree - Modifier votre souhait</title>
         <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     </head>
 
-    <body>
-        <form method="post">
-            <div>
-                <label>Souhait</label>
-                <input name="name" type="text" value="<?= $wish['name'] ?>" />
+    <body class="h-full flex items-center justify-center p-4 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-800 via-emerald-950 to-red-950">
+        <div class="w-full max-w-md bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-amber-500/20 p-8 space-y-6 text-slate-100">
+
+            <div class="text-center space-y-2">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 mb-1 shadow-inner">
+                    <span class="text-3xl">⭐</span>
+                </div>
+                <h1 class="text-2xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200">
+                    Modifier le souhait
+                </h1>
+                <p class="text-sm text-slate-400">Mettez à jour votre idée cadeau pour la famille</p>
             </div>
 
-            <button type="submit">Mettre à jour</button>
-        </form>  
-        
-        <a href="../home.php">Annuler</a>
+            <form method="post" class="space-y-5">
+                <div class="space-y-2">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300">Souhait</label>
+                    <input
+                        name="name"
+                        type="text"
+                        required
+                        value="<?= $wish['name'] ?>"
+                        class="w-full px-4 py-3 rounded-xl bg-slate-800/80 border border-slate-700 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent transition-all shadow-inner text-sm"
+                    />
+                </div>
+
+                <div class="flex flex-col gap-3 pt-2">
+                    <button
+                        type="submit"
+                        class="w-full py-3.5 px-4 rounded-xl font-bold text-slate-950 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 hover:from-amber-300 hover:to-amber-300 active:scale-[0.99] transition-all shadow-lg shadow-amber-500/20 cursor-pointer"
+                    >
+                        Mettre à jour
+                    </button>
+
+                    <a
+                        href="../home.php"
+                        class="w-full py-3 px-4 rounded-xl font-semibold text-xs uppercase tracking-wider text-center text-slate-400 bg-slate-800/60 hover:bg-slate-800 hover:text-slate-200 border border-slate-700/60 transition-all"
+                    >
+                        Annuler
+                    </a>
+                </div>
+            </form>
+
+            <div class="pt-4 border-t border-slate-800/60 text-center text-xs text-slate-500">
+                🎄 Christmas Tree • Cercle Familial
+            </div>
+            
+        </div>
     </body>
 </html>
 
