@@ -1,6 +1,7 @@
 <?php
 
-session_start();
+require_once "session/reinit_session.php";
+reinitSession();
 
 if(isset($_SESSION["auth"]))
 {
