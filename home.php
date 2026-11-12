@@ -98,10 +98,10 @@ $wishsSupportedUsers = getWishsSupportedUsers();
                                         <td class="py-3.5 px-4 text-right">
                                             <div class="inline-flex items-center gap-2">
                                                 <?php if(decryptData($w["wish_supported"]) === ""): ?>
-                                                    <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-300 text-center border border-slate-700">Personne pour le moment</span>
+                                                    <span class="px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 text-center border border-slate-700">Personne pour le moment</span>
                                                 <?php else: ?>
                                                     <?php $supportedBy = getUsernamesFromIds(decryptData($w["wish_supported"])); ?>
-                                                    <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-300 text-center border border-slate-700"><?= $supportedBy ?></span>
+                                                    <span class="px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 text-center border border-slate-700"><?= $supportedBy ?></span>
                                                 <?php endif ?>
                                                 
                                                 <?php if(!isSupportedByCurrentUser($w["wish_supported"])): ?>
