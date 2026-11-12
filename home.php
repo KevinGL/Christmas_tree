@@ -10,6 +10,7 @@ if(!isset($_SESSION["auth"]))
 
 require_once __DIR__ . "/api/get_wish_lists.php";
 require_once __DIR__ . "/safety/encrypt.php";
+require_once __DIR__ . "/utils/supported.php";
 
 $wishLists = getWishLists();
 $ownList = getOwnList();
@@ -80,7 +81,7 @@ $wishsSupportedUsers = getWishsSupportedUsers();
                             <tr class="border-b border-slate-800 text-xs font-semibold uppercase tracking-wider text-slate-400">
                                 <th class="py-3 px-4">Cadeau désiré</th>
                                 <th class="py-3 px-4">Pour</th>
-                                <th class="py-3 px-4 text-right">Pris en charge ?</th>
+                                <th class="py-3 px-4 text-right">Pris en charge par</th>
                             </tr>
                         </thead>
 
@@ -95,30 +96,30 @@ $wishsSupportedUsers = getWishsSupportedUsers();
                                         <td class="py-3.5 px-4 font-medium text-slate-200"><?= htmlspecialchars($w["wish_name"]) ?></td>
                                         <td class="py-3.5 px-4 text-slate-300"><?= htmlspecialchars($w["username"]) ?></td>
                                         <td class="py-3.5 px-4 text-right">
-                                            <?php if(decryptData($w["wish_supported"]) === "0"): ?>
-                                                <div class="inline-flex items-center gap-2">
-                                                    <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-300 border border-slate-700">Non</span>
+                                            <div class="inline-flex items-center gap-2">
+                                                <?php if(decryptData($w["wish_supported"]) === ""): ?>
+                                                    <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-300 text-center border border-slate-700">Personne pour le moment</span>
+                                                <?php else: ?>
+                                                    <?php $supportedBy = getUsernamesFromIds(decryptData($w["wish_supported"])); ?>
+                                                    <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-300 text-center border border-slate-700"><?= $supportedBy ?></span>
+                                                <?php endif ?>
+                                                
+                                                <?php if(!isSupportedByCurrentUser($w["wish_supported"])): ?>
                                                     <a
                                                         href="api/support.php?id=<?= $w['wish_id'] ?>"
-                                                        class="px-3 py-1 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-sm"
+                                                        class="px-3 py-1 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white text-center transition-all shadow-sm"
                                                     >
                                                         Prendre en charge
                                                     </a>
-                                                </div>
-
-                                            <?php else: ?>
-                                                <div class="inline-flex items-center gap-2 flex-wrap justify-end">
-                                                    <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-red-950/80 text-red-300 border border-red-500/30">
-                                                        Oui <?php if(decryptData($w["wish_supported"]) == $_SESSION["auth"]) echo "(Par vous)" ?>
-                                                    </span>
+                                                <?php else: ?>
                                                     <a
                                                         href="api/unsupport.php?id=<?= $w['wish_id'] ?>"
-                                                        class="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-all"
+                                                        class="px-3 py-1 rounded-lg text-xs font-semibold bg-red-950/80 hover:bg-red-900 text-white text-center transition-all shadow-sm"
                                                     >
-                                                        Annuler
+                                                        Ne plus prendre en charge
                                                     </a>
-                                                </div>
-                                            <?php endif ?>
+                                                <?php endif ?>
+                                            </div>
                                         </td>
                                     </tr>
                                 <?php endforeach ?>

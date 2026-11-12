@@ -32,16 +32,22 @@ if(!$w)
     die();
 }
 
-//Déjà pris en charge
-if(decryptData($w["supported"]) !== "0")
+$supportedBy = decryptData($w["supported"]);
+$supportedByArray = [];
+
+if($supportedBy !== "")
 {
-    header("location: ../home.php");
-    die();
+    $supportedByArray = explode(",", $supportedBy);
+}
+
+if(!in_array($_SESSION["auth"], $supportedByArray))
+{
+    $supportedByArray[] = $_SESSION["auth"];
 }
 
 $stmt = $pdo->prepare("UPDATE wish_lists SET supported = :supported WHERE id = :id");
 $stmt->execute([
-    "supported" => encryptData($_SESSION["auth"]),
+    "supported" => encryptData(implode(",", $supportedByArray)),
     "id" => $_GET["id"]
 ]);
 

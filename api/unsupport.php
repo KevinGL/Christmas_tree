@@ -32,9 +32,21 @@ if(!$w)
     die();
 }
 
+$supportedByArray = explode(",", decryptData($w["supported"]));
+
+if(!in_array($_SESSION["auth"], $supportedByArray))
+{
+    header("location: ../home.php");
+    die();
+}
+
+array_splice($supportedByArray, array_search($_SESSION["auth"], $supportedByArray), 1);
+
+$supportedBy = encryptData(implode(",", $supportedByArray));
+
 $stmt = $pdo->prepare("UPDATE wish_lists SET supported = :supported WHERE id = :id");
 $stmt->execute([
-    "supported" => encryptData("0"),
+    "supported" => $supportedBy,
     "id" => $_GET["id"]
 ]);
 
