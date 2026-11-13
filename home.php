@@ -35,11 +35,15 @@ $wishsSupportedUsers = getWishsSupportedUsers();
             <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
                 <div class="flex items-center gap-3">
                     <span class="text-2xl">🎄</span>
-                    <h1 class="text-xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200">
+                    <a href="index.php" class="text-xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200 hover:opacity-80 transition-opacity">
                         Christmas Tree
-                    </h1>
+                    </a>
                 </div>
-                <div>
+
+                <div class="flex items-center gap-3">
+                    <a href="supported.php" class="text-xs font-semibold px-3 py-2 rounded-xl bg-slate-900 border border-slate-700/50 text-slate-300 hover:bg-slate-800 transition-all shadow-sm">
+                        Mes attributions 🎁
+                    </a>
                     <a href="logout.php" class="text-xs font-semibold px-4 py-2 rounded-xl bg-red-950/80 border border-red-500/40 text-red-300 hover:bg-red-900/80 transition-all shadow-sm">
                         Déconnexion
                     </a>
