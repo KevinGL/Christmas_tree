@@ -42,7 +42,7 @@ if(isset($_GET["user_id"]))
 $stmt = $pdo->prepare("INSERT INTO wish_lists (name, supported, user_id) VALUES (:name, :supported, :user_id)");
 $stmt->execute([
     "name" => $_POST["name"],
-    "supported" => encryptData("0"),
+    "supported" => encryptData(""),
     "user_id" => $userId
 ]);
 
