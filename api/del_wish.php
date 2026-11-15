@@ -18,15 +18,15 @@ if(!isset($_GET["id"]))
 
 $pdo = getPDO();
 
-$stmt = $pdo->prepare("SELECT * FROM wish_lists WHERE id = :id AND user_id = :user_id");
+$stmt = $pdo->prepare("SELECT * FROM wish_lists WHERE id = :id");
 $stmt->execute([
-        "id" => $_GET["id"],
-        "user_id" => $_SESSION["auth"]
-    ]);
+    "id" => $_GET["id"]
+]);
 
 $wish = $stmt->fetch();
+$userIds = explode(",", $wish["user_id"]);
 
-if(!$wish)
+if(!$wish || !in_array($_SESSION["auth"], $userIds))
 {
     header("location: ../home.php");
     die();

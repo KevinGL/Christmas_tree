@@ -39,11 +39,20 @@ if(isset($_GET["user_id"]))
     }
 }
 
+$usersList = [strval($userId)];
+
+if(isset($_POST["others"]))
+{
+    $usersList = array_merge($usersList, $_POST["others"]);
+}
+
+$users = implode(",", $usersList);
+
 $stmt = $pdo->prepare("INSERT INTO wish_lists (name, supported, user_id) VALUES (:name, :supported, :user_id)");
 $stmt->execute([
     "name" => $_POST["name"],
     "supported" => encryptData(""),
-    "user_id" => $userId
+    "user_id" => $users
 ]);
 
 header("location: ../home.php");

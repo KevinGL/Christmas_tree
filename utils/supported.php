@@ -27,6 +27,24 @@ function getUsernamesFromIds(string $ids): string
     return $res;
 }
 
+function getUsernamesArrayFromIds(array $ids): array
+{
+    $res = [];
+    $pdo = getPDO();
+
+    for($i = 0 ; $i < count($ids) ; $i++)
+    {
+        $stmt = $pdo->prepare("SELECT username FROM users WHERE id = :id");
+        $stmt->execute(["id" => $ids[$i]]);
+
+        $username = $stmt->fetch()["username"];
+
+        $res[] = $username;
+    }
+
+    return $res;
+}
+
 function isSupportedByCurrentUser(string $ids): bool
 {
     $idsArray = explode(",", decryptData($ids));
@@ -37,48 +55,36 @@ function getSupported(): array
 {
     $pdo = getPDO();
 
-    $stmt = $pdo->prepare("SELECT w.name AS gift, w.supported AS supported, u.username AS username FROM users u LEFT JOIN wish_lists w ON w.user_id = u.id WHERE u.id <> :user_id");
-    $stmt->execute(["user_id" => $_SESSION["auth"]]);
-    $gifts = $stmt->fetchAll();
+    $stmt = $pdo->query("SELECT supported, user_id FROM wish_lists");
+    $wishs = $stmt->fetchAll();
 
-    $stmt = $pdo->prepare("SELECT username FROM users WHERE id != :id");
+    $wishs = array_filter($wishs, function ($w)
+    {
+        $users = explode(",", decryptData($w["supported"]));
+        return in_array($_SESSION["auth"], $users);
+    });
+
+    $stmt = $pdo->prepare("SELECT id, username FROM users WHERE id != :id ORDER BY username");
     $stmt->execute(["id" => $_SESSION["auth"]]);
     $users = $stmt->fetchAll();
 
-    foreach($users as &$u)
+    $usersById = [];
+
+    foreach($users as $user)
     {
-        $u["supported"] = false;
+        $key = $user["id"];
+        $usersById[$key] = ["username" => $user["username"], "supported" => false];
     }
 
-    foreach($gifts as $g)
+    foreach($wishs as $w)
     {
-        $supported = $g["supported"] ? decryptData($g["supported"]) : "";
-        $supportedArray = $supported !== "" ? explode(",", $supported) : [];
+        $ids = explode(",", $w["user_id"]);
 
-        if(in_array($_SESSION["auth"], $supportedArray))
+        foreach($ids as $id)
         {
-            /*$index = array_find_key($users, function ($u) use ($g)
-            {
-                return $u["username"] === $g["username"];
-            });*/
-
-            $index = -1;
-
-            for($i = 0 ; $i < count($users) ; $i++)
-            {
-                if($users[$i]["username"] === $g["username"])
-                {
-                    $index = $i;
-                    break;
-                }
-            }
-
-            if($index > -1)
-            {
-                $users[$index]["supported"] = true;
-            }
+            $usersById[$id]["supported"] = true;
         }
     }
 
-    return $users;
+    return $usersById;
 }

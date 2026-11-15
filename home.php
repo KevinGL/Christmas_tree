@@ -11,11 +11,13 @@ if(!isset($_SESSION["auth"]))
 require_once __DIR__ . "/api/get_wish_lists.php";
 require_once __DIR__ . "/safety/encrypt.php";
 require_once __DIR__ . "/utils/supported.php";
+require_once __DIR__ . "/utils/users.php";
 
 $wishLists = getWishLists();
 $ownList = getOwnList();
 $supportedUsers = getSupportedUsers();
 $wishsSupportedUsers = getWishsSupportedUsers();
+$othersUsers = getOthersUsers();
 
 ?>
 
@@ -104,7 +106,7 @@ $wishsSupportedUsers = getWishsSupportedUsers();
                                                 <?php if(decryptData($w["wish_supported"]) === ""): ?>
                                                     <span class="px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 text-center border border-slate-700">Personne pour le moment</span>
                                                 <?php else: ?>
-                                                    <?php $supportedBy = getUsernamesFromIds(decryptData($w["wish_supported"])); ?>
+                                                    <?php $supportedBy = getUsernamesFromIds(decryptData($w["wish_supported"])) ?>
                                                     <span class="px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 text-center border border-slate-700"><?= $supportedBy ?></span>
                                                 <?php endif ?>
                                                 
@@ -163,10 +165,30 @@ $wishsSupportedUsers = getWishsSupportedUsers();
                         <?php endif ?>
                     </div>
 
-                    <form method="post" action="/api/add_wish.php" class="space-y-3 pt-4 border-t border-slate-800">
+                    <form method="post" action="/api/add_wish.php" class="space-y-4 pt-4 border-t border-slate-800">
                         <div>
-                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Cadeau désiré</label>
-                            <input name="name" type="text" required placeholder="Ex: Un pull de Noël moche" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800/80 border border-slate-700 text-slate-100 text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-400 transition-all" />
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Cadeau désiré</label>
+                            <input name="name" type="text" required placeholder="Ex: Un pull de Noël moche" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800/80 border border-slate-700 text-slate-100 text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-400 transition-all shadow-inner" />
+                        </div>
+                        
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Cadeau commun avec :</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                <?php foreach($othersUsers as $user): ?>
+                                    <label class="flex items-center gap-3 p-2.5 rounded-xl bg-slate-900/60 border border-slate-800 hover:border-amber-500/40 cursor-pointer transition-all group">
+                                        <input 
+                                            type="checkbox"
+                                            name="others[]"
+                                            value="<?= $user['id'] ?>"
+                                            class="w-4 h-4 rounded border-slate-700 bg-slate-800 text-amber-500 focus:ring-amber-400/50 focus:ring-offset-slate-900 cursor-pointer"
+                                        />
+                                        <span class="text-xs font-medium text-slate-300 group-hover:text-slate-100 transition-colors truncate">
+                                            <?= htmlspecialchars($user["username"]) ?>
+                                        </span>
+                                    </label>
+                                <?php endforeach ?>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mt-1.5">Cochez les membres de la famille qui partagent ce cadeau avec vous.</p>
                         </div>
 
                         <input type="submit" value="Ajouter à ma liste" class="w-full py-2.5 px-4 rounded-xl font-bold text-xs uppercase tracking-wider text-slate-950 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-400 hover:from-amber-300 hover:to-amber-300 transition-all shadow-md cursor-pointer" />
@@ -181,7 +203,7 @@ $wishsSupportedUsers = getWishsSupportedUsers();
                         </div>
 
                         <?php if(empty($wishsSupportedUsers)): ?>
-                            <p class="text-sm text-slate-500 py-4 text-center">Vous ne gérez aucune personne</p>
+                            <p class="text-sm text-slate-500 py-4 text-center">Aucun autre cadeau à prendre en charge</p>
                         <?php else: ?>
                             <div class="space-y-2 max-h-60 overflow-y-auto pr-1">
                                 <?php foreach($wishsSupportedUsers as $w): ?>

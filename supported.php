@@ -71,7 +71,7 @@ $usersSupported = getSupported();
             <section class="space-y-6">
                 <div class="flex items-center justify-between">
                     <h2 class="text-xl font-bold text-amber-600 flex items-center gap-2">
-                        <span>🎁</span> Liste des membres de la famille
+                        <span>🎁</span> Cadeaux déjà pris en charge
                     </h2>
                     <span class="text-xs text-slate-400 bg-slate-900/80 px-3 py-1.5 rounded-full border border-slate-800">
                         <?= count($usersSupported) ?> membres au total
